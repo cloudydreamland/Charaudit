@@ -1,0 +1,7 @@
+include README.en.md
+include CHANGELOG.md
+include ROADMAP.md
+include SECURITY.md
+include CONTRIBUTING.md
+include REPORT.md
+recursive-include docs/assets *.txt

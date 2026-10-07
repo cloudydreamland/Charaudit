@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run tests (zero required dependencies)
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests
+      - name: Shipped data tables match their sources (deterministic rebuild)
+        run: |
+          python scripts/build_tables.py
+          git diff --exit-code src/charaudit/data
+      - name: README quickstart blocks are real (clean install + verbatim assert)
+        run: |
+          python -m venv qs_venv
+          qs_venv/Scripts/python -m pip install .
+          qs_venv/Scripts/python scripts/assert_quickstart.py
+        if: runner.os == 'Windows'
+      - name: README quickstart blocks are real (clean install + verbatim assert)
+        run: |
+          python -m venv qs_venv
+          qs_venv/bin/python -m pip install .
+          qs_venv/bin/python scripts/assert_quickstart.py
+        if: runner.os != 'Windows'
