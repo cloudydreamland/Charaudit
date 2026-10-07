@@ -210,3 +210,37 @@
 
 - S6 两单元完成：干净安装断言、CI、publish workflow、构建产物清单全部就绪。
 - S7 拆解：**S7-1 GitHub 建仓 + push（gh 已认证，可立即执行）**；S7-2 PyPI 上传（硬前置：用户在 pypi.org 绑定 Trusted Publisher 并设仓库变量 PUBLISH_ENABLED=true，在此之前发布 workflow 只产 artifact 不上传）；S7-3 GitHub Release（Release 触发 publish workflow，无 TP 时仅构建）。
+
+## 2026-10-08 · A-S7-2 对齐 + tag + GitHub Release（S7-2 完成，S7 除 PyPI 上传外全部完成）
+
+**交付：本地/远端对齐（fetch 成功，网络恢复；reset 到 8bad2bb，弃用等价提交 c9bafeb）+ tag v0.1.0a1 + GitHub Release https://github.com/cloudydreamland/Charaudit/releases/tag/v0.1.0a1（CHANGELOG 摘录 + alpha 状态如实说明 + demo.txt 资产）。**
+
+### publish workflow 首次实战行为（按设计，如实记录）
+
+Release 触发 publish.yml（run 37672667949，completed/success）：**gate=success（PUBLISH_ENABLED 未设 → 判定不发布）、build=success（sdist+wheel 已构建并上传为 workflow artifact）、publish=skipped**——全程未触碰 PyPI，门控设计与实际行为一致。
+
+### 验证
+
+- `git fetch origin && git reset --hard origin/main` → HEAD=8bad2bb（与远端一致，c9bafeb 弃用）。
+- Release 页含 demo.txt 资产；tag v0.1.0a1 指向 8bad2bb。
+- 回归：**Ran 85 tests, OK**（本轮无代码改动，例行过门）。
+- 仓库实况：stars=0（新仓如实记录）。
+
+### 遗留与状态
+
+- S7 剩余唯一动作：PyPI 上传——**等用户**在 pypi.org 绑定 Trusted Publisher 并设仓库变量 PUBLISH_ENABLED=true（此后任何一次 Release/workflow_dispatch 都会把已构建的 artifact 推上 PyPI）。
+- 下一单元 **A-S8-1**：首发帖草稿（中文 V2EX 版 + 英文 r/Python 版；结构：问题/最短复现/现有方案不足/诚实边界/安装；凭证缺失只出草稿并入等用户清单）。
+
+## 2026-10-08 · A-S8-1 首发帖草稿（S8-1 完成）
+
+**交付：`promotion/v2ex-zh.md`（中文，分享创造节点）+ `promotion/reddit-python-en.md`（英文 r/Python）——结构按管线 §4-S8：问题（三个实抓案例：promptfoo 2025-04 零宽注入 / AWS 2025-09-30 标签块与代理对重组 / 西里尔同形字钓鱼）→ 现有方案缺口（confusable_homoglyphs 月下载约 137 万但 2024-01 起归档且只管同形字；llm-guard 归档）→ 最短复现（README 已实跑核实的输出块）→ 诚实边界（不判语义/非防火墙/alpha 未上 PyPI/CJK 提示面）→ 源码安装 → 实测性能（引用 RESULTS.md）→ 征集意见三问。**
+
+### 状态与纪律
+
+- **DRAFT**：两帖均标记 DRAFT，等社区凭证；发布时一次一帖，链接回填账本。
+- 数字纪律自查：草稿只引用 GAP_PROOF 实抓证据与 RESULTS.md 实测数字，无编造用户/星数/性能；alpha 全文如实。
+- 提交 e05ae54 已推送（含 S7-2/S8-1 WORKLOG 补记）；回归 **Ran 85 tests, OK (0.78s)**。事故记录：本轮第 4 次踩"未显式 cd 后台跑测试"坑（已终止重做），该模式在自动化长会话中反复出现——后续执行轮次必须在任何测试命令前带显式 cd。
+
+### 遗留给 S8-2
+
+- Show HN 草稿（英文，更短更技术）+ awesome-list 摸底（实查候选 list 收录标准：awesome-llm、awesome-python-security 等，不盲投）。
